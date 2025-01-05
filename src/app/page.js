@@ -108,6 +108,141 @@
 //     </div>
 //   );
 // }
+// "use client";
+// import { useState, useEffect } from 'react';
+// import axios from 'axios';
+
+// const Home = () => {
+//     const [formData, setFormData] = useState({
+//         date: '',
+//         time: '',
+//         guests: '',
+//         name: '',
+//         contact: '',
+//     });
+
+//     const [bookings, setBookings] = useState([]);
+//     const [message, setMessage] = useState('');
+
+//     useEffect(() => {
+//         fetchBookings();
+//     }, []);
+
+//     const fetchBookings = async () => {
+//         try {
+//             const response = await axios.get('https://neina-nextjs-backend.onrender.com');
+//             if (response && response.data) {
+//                 setBookings(response.data);
+//             } else {
+//                 setMessage('No bookings found.');
+//             }
+//         } catch (error) {
+//             setMessage('Failed to fetch bookings.');
+//         }
+//     };
+
+//     const handleInputChange = (e) => {
+//         setFormData({ ...formData, [e.target.name]: e.target.value });
+//     };
+
+//     const handleFormSubmit = async (e) => {
+//         e.preventDefault();
+
+//         try {
+//             const response = await axios.post('https://neina-nextjs-backend.onrender.com', formData);
+//             setMessage(response.data.message);
+//             fetchBookings(); // Refresh bookings
+//         } catch (error) {
+//             setMessage(error.response?.data?.message || 'Something went wrong.');
+//         }
+//     };
+//     const handleDeleteBooking = async (id) => {
+//         try {
+//             const response = await axios.delete(`https://neina-nextjs-backend.onrender.com${id}`);
+//             setMessage(response.data.message);
+//             fetchBookings(); // Refresh bookings after deletion
+//         } catch (error) {
+//             setMessage('Failed to delete booking.');
+//         }
+//     };
+
+
+//     return (
+//         <div className="p-4">
+//             <h1 className="text-2xl font-bold mb-4">Restaurant Table Booking</h1>
+
+//             <form onSubmit={handleFormSubmit} className="space-y-4">
+//                 <input
+//                     type="date"
+//                     name="date"
+//                     className="border p-2 w-full"
+//                     value={formData.date}
+//                     onChange={handleInputChange}
+//                     required
+//                 />
+//                 <input
+//                     type="time"
+//                     name="time"
+//                     className="border p-2 w-full"
+//                     value={formData.time}
+//                     onChange={handleInputChange}
+//                     required
+//                 />
+//                 <input
+//                     type="number"
+//                     name="guests"
+//                     className="border p-2 w-full"
+//                     value={formData.guests}
+//                     onChange={handleInputChange}
+//                     placeholder="Number of Guests"
+//                     required
+//                 />
+//                 <input
+//                     type="text"
+//                     name="name"
+//                     className="border p-2 w-full"
+//                     value={formData.name}
+//                     onChange={handleInputChange}
+//                     placeholder="Enter Your Name"
+//                     required
+//                 />
+//                 <input
+//                     type="tel"
+//                     name="contact"
+//                     className="border p-2 w-full"
+//                     value={formData.contact}
+//                     onChange={handleInputChange}
+//                     placeholder="Contact Details"
+//                     required
+//                 />
+//                 <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
+//                     Book Table
+//                 </button>
+//             </form>
+
+//             <p className="mt-4 text-red-500">{message}</p>
+
+//             <h2 className="text-xl font-semibold mt-6">Existing Bookings </h2>
+//             <ul className="list-disc pl-6">
+//                 {bookings.map((booking) => (
+//                     <li key={booking.id} className="mb-2">
+//                         {booking.date} at {booking.time} for {booking.guests} guests ({booking.name})
+//                         <button
+//                             onClick={() => handleDeleteBooking(booking.id)}
+//                             className="bg-red-500 text-white px-2 py-1 rounded ml-2"
+//                         >
+//                             Delete
+//                         </button>
+//                     </li>
+//                 ))}
+//             </ul>
+//         </div>
+//     );
+// };
+
+// export default Home;
+
+
 "use client";
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -120,9 +255,11 @@ const Home = () => {
         name: '',
         contact: '',
     });
-
     const [bookings, setBookings] = useState([]);
     const [message, setMessage] = useState('');
+
+    // Use environment variable for backend URL
+    const backendURL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     useEffect(() => {
         fetchBookings();
@@ -130,12 +267,8 @@ const Home = () => {
 
     const fetchBookings = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/bookings');
-            if (response && response.data) {
-                setBookings(response.data);
-            } else {
-                setMessage('No bookings found.');
-            }
+            const response = await axios.get(`${backendURL}/api/bookings`);
+            setBookings(response.data);
         } catch (error) {
             setMessage('Failed to fetch bookings.');
         }
@@ -149,95 +282,20 @@ const Home = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:5000/api/bookings', formData);
+            const response = await axios.post(`${backendURL}/api/bookings`, formData);
             setMessage(response.data.message);
-            fetchBookings(); // Refresh bookings
+            fetchBookings();
         } catch (error) {
             setMessage(error.response?.data?.message || 'Something went wrong.');
         }
     };
-    const handleDeleteBooking = async (id) => {
-        try {
-            const response = await axios.delete(`http://localhost:5000/api/bookings/${id}`);
-            setMessage(response.data.message);
-            fetchBookings(); // Refresh bookings after deletion
-        } catch (error) {
-            setMessage('Failed to delete booking.');
-        }
-    };
-
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Restaurant Table Booking</h1>
-
-            <form onSubmit={handleFormSubmit} className="space-y-4">
-                <input
-                    type="date"
-                    name="date"
-                    className="border p-2 w-full"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    required
-                />
-                <input
-                    type="time"
-                    name="time"
-                    className="border p-2 w-full"
-                    value={formData.time}
-                    onChange={handleInputChange}
-                    required
-                />
-                <input
-                    type="number"
-                    name="guests"
-                    className="border p-2 w-full"
-                    value={formData.guests}
-                    onChange={handleInputChange}
-                    placeholder="Number of Guests"
-                    required
-                />
-                <input
-                    type="text"
-                    name="name"
-                    className="border p-2 w-full"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Enter Your Name"
-                    required
-                />
-                <input
-                    type="tel"
-                    name="contact"
-                    className="border p-2 w-full"
-                    value={formData.contact}
-                    onChange={handleInputChange}
-                    placeholder="Contact Details"
-                    required
-                />
-                <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
-                    Book Table
-                </button>
-            </form>
-
-            <p className="mt-4 text-red-500">{message}</p>
-
-            <h2 className="text-xl font-semibold mt-6">Existing Bookings </h2>
-            <ul className="list-disc pl-6">
-                {bookings.map((booking) => (
-                    <li key={booking.id} className="mb-2">
-                        {booking.date} at {booking.time} for {booking.guests} guests ({booking.name})
-                        <button
-                            onClick={() => handleDeleteBooking(booking.id)}
-                            className="bg-red-500 text-white px-2 py-1 rounded ml-2"
-                        >
-                            Delete
-                        </button>
-                    </li>
-                ))}
-            </ul>
+        <div>
+            {/* UI Code */}
         </div>
     );
 };
 
 export default Home;
+
